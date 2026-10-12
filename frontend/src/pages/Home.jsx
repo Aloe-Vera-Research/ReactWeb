@@ -1,905 +1,478 @@
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { ArrowDown, ArrowUpRight, Check, Droplets, Sun, Thermometer } from "lucide-react";
+
+import AloePlant from "../components/AloePlant";
+import Architecture from "../components/Architecture";
+import SensorConsole from "../components/SensorConsole";
 import {
-  Activity,
-  ArrowRight,
-  BarChart3,
-  BrainCircuit,
-  CheckCircle2,
-  ChevronRight,
-  CloudSun,
-  Cpu,
-  FileText,
-  FlaskConical,
-  ImagePlus,
-  Layers3,
-  Leaf,
-  Microscope,
-  Navigation,
-  Radio,
-  ScanSearch,
-  ShieldCheck,
-  Smartphone,
-  Sprout,
-  TrendingUp,
-  Wifi,
-} from "lucide-react";
+  Counter,
+  Marquee,
+  Parallax,
+  Reveal,
+  SplitText,
+  SpotlightCard,
+  Stagger,
+  StaggerItem,
+} from "../components/Motion";
+import { Button, Eyebrow, Section, SectionHead } from "../components/Ui";
+import {
+  contributions,
+  heroStats,
+  members,
+  modules,
+  problems,
+  project,
+  techMarquee,
+} from "../data/site";
+import { gallery } from "../data/gallery";
 
-const stats = [
-  {
-    value: "5",
-    label: "Core AI Modules",
-    description: "Crop-specific intelligence",
-  },
-  {
-    value: "AI",
-    label: "Decision Support",
-    description: "Data-driven recommendations",
-  },
-  {
-    value: "IoT",
-    label: "Live Monitoring",
-    description: "Connected field sensors",
-  },
-  {
-    value: "Mobile",
-    label: "Field Access",
-    description: "Support wherever it is needed",
-  },
+const heroChips = [
+  { icon: Thermometer, label: "Air temp", value: "29.4 °C", className: "left-0 top-[18%]", delay: 1.9 },
+  { icon: Droplets, label: "Soil moisture", value: "23 %", className: "right-0 top-[30%]", delay: 2.1 },
+  { icon: Sun, label: "Light", value: "41.2k lux", className: "left-[4%] bottom-[22%]", delay: 2.3 },
 ];
 
-const platformFeatures = [
-  {
-    icon: BrainCircuit,
-    title: "AI-Powered Intelligence",
-    description:
-      "Machine-learning models convert agricultural, environmental, and market data into useful predictions and recommendations.",
-    accent: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    icon: Radio,
-    title: "Connected IoT Sensing",
-    description:
-      "ESP32-based devices and agricultural sensors capture soil and environmental conditions for continuous monitoring.",
-    accent: "bg-teal-100 text-teal-700",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile-First Delivery",
-    description:
-      "A field-ready mobile experience presents sensor readings, alerts, predictions, and recommendations in an accessible format.",
-    accent: "bg-lime-100 text-lime-700",
-  },
-];
+function Hero() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const plantY = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -70]);
+  const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-const modules = [
-  {
-    number: "01",
-    icon: TrendingUp,
-    title: "Yield Prediction",
-    subtitle: "Production intelligence",
-    description:
-      "Forecast Aloe vera yield using structured agricultural and environmental data. XGBoost produced the strongest performance during model comparison.",
-    tags: ["XGBoost", "Yield Forecast", "Planning"],
-  },
-  {
-    number: "02",
-    icon: CloudSun,
-    title: "Environmental Forecasting",
-    subtitle: "Weather-aware decisions",
-    description:
-      "Combine environmental readings and forecast information to help users anticipate field conditions and plan agricultural activities.",
-    tags: ["Weather", "Environment", "Alerts"],
-  },
-  {
-    number: "03",
-    icon: ScanSearch,
-    title: "Disease Detection",
-    subtitle: "Image-based awareness",
-    description:
-      "Analyse Aloe vera leaf images to support earlier recognition of visible disease symptoms and cultivation issues.",
-    tags: ["Computer Vision", "Leaf Analysis", "Detection"],
-  },
-  {
-    number: "04",
-    icon: FlaskConical,
-    title: "Fertilizer Recommendation",
-    subtitle: "Nutrient guidance",
-    description:
-      "Generate fertilizer guidance using soil conditions, crop characteristics, plant age, and other cultivation-related inputs.",
-    tags: ["Soil Data", "Nutrients", "Recommendation"],
-  },
-  {
-    number: "05",
-    icon: BarChart3,
-    title: "Price Forecasting",
-    subtitle: "Market intelligence",
-    description:
-      "Support market-aware planning by forecasting Aloe vera price behaviour and improving economic visibility for users.",
-    tags: ["Market Trends", "Price Forecast", "Insights"],
-  },
-];
-
-const workflow = [
-  {
-    icon: Wifi,
-    step: "01",
-    title: "Collect",
-    description:
-      "Sensors and user inputs capture environmental, soil, crop, image, and market information.",
-  },
-  {
-    icon: Cpu,
-    step: "02",
-    title: "Analyse",
-    description:
-      "AI models and platform services process the collected information.",
-  },
-  {
-    icon: Activity,
-    step: "03",
-    title: "Interpret",
-    description:
-      "Complex model outputs are converted into understandable insights and alerts.",
-  },
-  {
-    icon: Smartphone,
-    step: "04",
-    title: "Act",
-    description:
-      "Users receive practical support through the mobile-oriented interface.",
-  },
-];
-
-const navigationItems = [
-  {
-    icon: Sprout,
-    title: "Domain",
-    description:
-      "Explore the research problem, literature gap, objectives, and proposed solution.",
-    href: "/domain",
-  },
-  {
-    icon: Navigation,
-    title: "Milestones",
-    description:
-      "Review project assessments, progress stages, important dates, and status.",
-    href: "/milestones",
-  },
-  {
-    icon: FileText,
-    title: "Documents",
-    description:
-      "Access research documents, reports, submissions, and related resources.",
-    href: "/documents",
-  },
-  {
-    icon: ImagePlus,
-    title: "Presentations",
-    description:
-      "View project presentation materials and previous presentation resources.",
-    href: "/presentations",
-  },
-];
-
-const SectionBadge = ({ icon: Icon, children }) => (
-  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-    <Icon size={17} aria-hidden="true" />
-    {children}
-  </span>
-);
-
-export default function Home() {
   return (
-    <main className="overflow-hidden bg-white text-slate-900">
-      {/* Hero Section */}
-      <section className="relative isolate overflow-hidden bg-[#f7fcf8]">
-        {/* Decorative backgrounds */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-emerald-200/40 blur-3xl" />
-          <div className="absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-lime-200/30 blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08)_1px,transparent_1px)] [background-size:28px_28px]" />
-        </div>
+    <section ref={ref} className="grain relative min-h-screen overflow-hidden bg-ink-900 text-paper">
+      <div aria-hidden="true" className="grid-lines absolute inset-0" />
+      <motion.div
+        aria-hidden="true"
+        className="absolute -left-40 top-1/4 h-[560px] w-[560px] rounded-full bg-leaf/25 blur-[130px]"
+        animate={{ x: [0, 60, 0], y: [0, -40, 0] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-        <div className="relative mx-auto grid min-h-[760px] max-w-7xl items-center gap-16 px-6 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
-          {/* Hero content */}
-          <div className="max-w-3xl">
-            <SectionBadge icon={Sprout}>
-              Final Year Research Project
-            </SectionBadge>
+      <div className="shell relative z-10 grid min-h-screen items-center gap-6 pb-24 pt-32 lg:grid-cols-[1.1fr_0.9fr] lg:pt-28">
+        <motion.div style={{ y: copyY, opacity: fade }}>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <Eyebrow dark>
+              Research project {project.id} · {project.instituteShort}
+            </Eyebrow>
+          </motion.div>
 
-            <h1 className="mt-7 text-4xl font-black tracking-[-0.04em] text-slate-950 sm:text-5xl lg:text-6xl xl:text-7xl">
-              Smarter decisions for{" "}
-              <span className="relative whitespace-nowrap text-emerald-700">
-                Aloe vera
-                <svg
-                  className="absolute -bottom-2 left-0 w-full text-emerald-300"
-                  viewBox="0 0 300 12"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M3 9C75 2 217 2 297 8"
-                    stroke="currentColor"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>{" "}
-              cultivation.
-            </h1>
+          <h1 className="h-display mt-7 text-[3.4rem] sm:text-7xl lg:text-[5.6rem] xl:text-[6.4rem]">
+            <SplitText text="Aloe vera, grown on *data* not guesswork." delay={0.3} immediate />
+          </h1>
 
-            <p className="mt-8 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-              AloeGreen is a crop-specific AI and IoT smart agriculture
-              platform that brings monitoring, prediction, disease awareness,
-              fertilizer guidance, and market intelligence into one connected
-              ecosystem.
-            </p>
+          <motion.p
+            className="mt-8 max-w-xl text-lg leading-8 text-paper/70"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.95 }}
+          >
+            AloeGreen is a crop-specific AI–IoT platform for Sri Lankan Aloe vera
+            growers. One field sensor node, five intelligent modules and a mobile
+            app turn soil, weather, leaf and market data into decisions.
+          </motion.p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/domain"
-                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-emerald-700 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-700/20 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-800 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-emerald-200"
+          <motion.div
+            className="mt-10 flex flex-wrap items-center gap-4"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.1 }}
+          >
+            <Button to="/domain">Explore the research</Button>
+            <Button
+              href="/documents/Smart%20IOT-Based%20System%20For%20Aloe%20Vera%20-%20Research%20Paper.pdf"
+              target="_blank"
+              rel="noreferrer"
+              variant="ghost"
+            >
+              Read the paper
+            </Button>
+          </motion.div>
+        </motion.div>
+
+        <motion.div className="relative mx-auto w-full max-w-[560px]" style={{ y: plantY }}>
+          <AloePlant className="w-full" />
+
+          {heroChips.map((chip) => {
+            const Icon = chip.icon;
+            return (
+              <motion.div
+                key={chip.label}
+                className={`absolute ${chip.className}`}
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: chip.delay, type: "spring", bounce: 0.45 }}
               >
-                Explore the Research
-                <ArrowRight
-                  size={18}
-                  className="transition-transform group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </Link>
-
-              <Link
-                to="/documents"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-100"
-              >
-                <FileText size={18} aria-hidden="true" />
-                View Documents
-              </Link>
-            </div>
-
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
-              <span className="flex items-center gap-2">
-                <CheckCircle2
-                  size={17}
-                  className="text-emerald-600"
-                  aria-hidden="true"
-                />
-                Research-backed design
-              </span>
-
-              <span className="flex items-center gap-2">
-                <CheckCircle2
-                  size={17}
-                  className="text-emerald-600"
-                  aria-hidden="true"
-                />
-                Crop-specific intelligence
-              </span>
-
-              <span className="flex items-center gap-2">
-                <CheckCircle2
-                  size={17}
-                  className="text-emerald-600"
-                  aria-hidden="true"
-                />
-                Integrated AI-IoT workflow
-              </span>
-            </div>
-          </div>
-
-          {/* Hero platform preview */}
-          <div className="relative mx-auto w-full max-w-[570px] lg:mx-0 lg:ml-auto">
-            <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-emerald-300/30 to-lime-200/30 blur-3xl" />
-
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-4 shadow-[0_30px_80px_-25px_rgba(6,78,59,0.30)] backdrop-blur-xl sm:p-6">
-              {/* Browser header */}
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                </div>
-
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                  AloeGreen Platform
-                </span>
-              </div>
-
-              <div className="mt-5 grid gap-4 sm:grid-cols-[1.1fr_0.9fr]">
-                {/* Yield card */}
-                <div className="rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-900 p-5 text-white">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-200">
-                        Predicted yield
-                      </p>
-
-                      <p className="mt-3 text-3xl font-black">
-                        87.4
-                        <span className="ml-1 text-sm font-semibold text-emerald-200">
-                          kg
-                        </span>
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl bg-white/10 p-3">
-                      <TrendingUp size={22} aria-hidden="true" />
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex h-20 items-end gap-1.5">
-                    {[32, 48, 40, 59, 52, 70, 64, 82, 74, 94].map(
-                      (height, index) => (
-                        <span
-                          key={index}
-                          className="flex-1 rounded-t-full bg-emerald-300/80"
-                          style={{ height: `${height}%` }}
-                        />
-                      ),
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2 text-xs text-emerald-100">
-                    <TrendingUp size={14} aria-hidden="true" />
-                    Model-supported forecast
-                  </div>
-                </div>
-
-                {/* Live monitoring */}
-                <div className="rounded-3xl border border-slate-100 bg-slate-50 p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-slate-800">
-                      Live Monitoring
-                    </p>
-
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700">
-                      <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                      </span>
-                      Online
-                    </span>
-                  </div>
-
-                  <div className="mt-5 space-y-3">
-                    <div className="rounded-2xl bg-white p-3 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500">
-                          Soil moisture
-                        </span>
-                        <span className="text-sm font-extrabold text-slate-800">
-                          64%
-                        </span>
-                      </div>
-
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full w-[64%] rounded-full bg-emerald-500" />
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-white p-3 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500">
-                          Soil temperature
-                        </span>
-                        <span className="text-sm font-extrabold text-slate-800">
-                          27°C
-                        </span>
-                      </div>
-
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full w-[55%] rounded-full bg-amber-400" />
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl bg-white p-3 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500">
-                          Soil pH
-                        </span>
-                        <span className="text-sm font-extrabold text-slate-800">
-                          6.8
-                        </span>
-                      </div>
-
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full w-[68%] rounded-full bg-sky-500" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recommendation */}
-              <div className="mt-4 flex flex-col gap-4 rounded-3xl border border-emerald-100 bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-2xl bg-emerald-700 p-3 text-white">
-                    <BrainCircuit size={21} aria-hidden="true" />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-extrabold text-slate-900">
-                      Smart Recommendation
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-600">
-                      Current conditions are suitable for the planned
-                      cultivation activity.
-                    </p>
-                  </div>
-                </div>
-
-                <span className="whitespace-nowrap rounded-full bg-white px-3 py-1.5 text-xs font-bold text-emerald-700 shadow-sm">
-                  Low risk
-                </span>
-              </div>
-            </div>
-
-            {/* Floating badges */}
-            <div className="absolute -left-5 top-20 hidden items-center gap-3 rounded-2xl border border-white bg-white p-3 shadow-xl sm:flex">
-              <div className="rounded-xl bg-lime-100 p-2 text-lime-700">
-                <Leaf size={20} aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-900">Crop-specific</p>
-                <p className="text-[11px] text-slate-500">Designed for Aloe</p>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-5 right-8 hidden items-center gap-3 rounded-2xl border border-white bg-white p-3 shadow-xl sm:flex">
-              <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
-                <ShieldCheck size={20} aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-900">
-                  Decision support
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  Research-driven insights
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Statistics */}
-      <section className="relative z-10 px-6 lg:px-8">
-        <div className="mx-auto -mt-2 grid max-w-7xl overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-900/5 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item, index) => (
-            <article
-              key={item.label}
-              className={`p-6 text-center sm:p-7 lg:text-left ${
-                index !== stats.length - 1
-                  ? "border-b border-slate-100 sm:border-b-0 sm:border-r"
-                  : ""
-              }`}
-            >
-              <p className="text-3xl font-black tracking-tight text-emerald-700">
-                {item.value}
-              </p>
-              <p className="mt-1 text-sm font-extrabold text-slate-900">
-                {item.label}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                {item.description}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Introduction */}
-      <section className="px-6 py-24 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid items-end gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <SectionBadge icon={Leaf}>Platform Foundation</SectionBadge>
-
-              <h2 className="mt-5 max-w-xl text-3xl font-black tracking-[-0.03em] text-slate-950 sm:text-4xl lg:text-5xl">
-                Technology designed around real agricultural decisions.
-              </h2>
-            </div>
-
-            <p className="max-w-2xl text-base leading-8 text-slate-600 lg:ml-auto lg:text-lg">
-              AloeGreen connects IoT sensing, AI analytics, and mobile access
-              through one integrated workflow. Instead of presenting isolated
-              measurements, the platform turns collected data into practical
-              support for Aloe vera cultivation.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {platformFeatures.map((feature) => {
-              const Icon = feature.icon;
-
-              return (
-                <article
-                  key={feature.title}
-                  className="group relative overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-900/5 sm:p-8"
-                >
-                  <div className="absolute right-0 top-0 h-32 w-32 translate-x-12 -translate-y-12 rounded-full bg-emerald-50 transition-transform duration-500 group-hover:scale-150" />
-
-                  <div
-                    className={`relative flex h-13 w-13 items-center justify-center rounded-2xl p-3 ${feature.accent}`}
-                  >
-                    <Icon size={25} aria-hidden="true" />
-                  </div>
-
-                  <h3 className="relative mt-6 text-xl font-extrabold text-slate-900">
-                    {feature.title}
-                  </h3>
-
-                  <p className="relative mt-3 text-sm leading-7 text-slate-600">
-                    {feature.description}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Core modules */}
-      <section className="bg-slate-950 px-6 py-24 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-300">
-                <Layers3 size={17} aria-hidden="true" />
-                Core Intelligence Modules
-              </span>
-
-              <h2 className="mt-5 text-3xl font-black tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
-                Five connected modules. One complete platform.
-              </h2>
-
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-400 lg:text-lg">
-                Each module solves a specific cultivation or planning problem,
-                while the integrated platform creates a more complete
-                decision-support experience.
-              </p>
-            </div>
-
-            <Link
-              to="/domain"
-              className="group inline-flex w-fit items-center gap-2 font-bold text-emerald-300 transition hover:text-emerald-200"
-            >
-              Explore the complete domain
-              <ArrowRight
-                size={18}
-                className="transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-6">
-            {modules.map((module, index) => {
-              const Icon = module.icon;
-
-              return (
-                <article
-                  key={module.title}
-                  className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-7 transition duration-300 hover:-translate-y-1 hover:border-emerald-400/30 hover:bg-white/[0.09] ${
-                    index < 2
-                      ? "lg:col-span-3"
-                      : index === 2
-                        ? "lg:col-span-2"
-                        : "lg:col-span-2"
-                  }`}
-                >
-                  <div className="absolute right-5 top-3 text-6xl font-black text-white/[0.035]">
-                    {module.number}
-                  </div>
-
-                  <div className="relative flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20">
-                      <Icon size={23} aria-hidden="true" />
-                    </div>
-
-                    <span className="text-xs font-black tracking-[0.18em] text-slate-600">
-                      {module.number}
-                    </span>
-                  </div>
-
-                  <p className="relative mt-6 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
-                    {module.subtitle}
-                  </p>
-
-                  <h3 className="relative mt-2 text-xl font-extrabold text-white">
-                    {module.title}
-                  </h3>
-
-                  <p className="relative mt-3 text-sm leading-7 text-slate-400">
-                    {module.description}
-                  </p>
-
-                  <div className="relative mt-6 flex flex-wrap gap-2">
-                    {module.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold text-slate-300"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          {/* Integrated platform callout */}
-          <div className="mt-6 flex flex-col gap-6 rounded-[1.75rem] border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-lime-400/5 p-7 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex max-w-3xl items-start gap-4">
-              <div className="hidden rounded-2xl bg-emerald-400/10 p-3 text-emerald-300 sm:block">
-                <Layers3 size={25} aria-hidden="true" />
-              </div>
-
-              <div>
-                <h3 className="text-xl font-extrabold text-white">
-                  Integrated AloeGreen Platform
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-slate-400">
-                  Monitoring, predictions, recommendations, and market insights
-                  are brought together instead of being delivered through
-                  disconnected tools.
-                </p>
-              </div>
-            </div>
-
-            <Link
-              to="/about"
-              className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-emerald-50 lg:self-center"
-            >
-              About the project
-              <ChevronRight
-                size={17}
-                className="transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Workflow */}
-      <section className="px-6 py-24 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-3xl text-center">
-            <SectionBadge icon={Activity}>Platform Workflow</SectionBadge>
-
-            <h2 className="mt-5 text-3xl font-black tracking-[-0.03em] text-slate-950 sm:text-4xl lg:text-5xl">
-              From field data to practical action.
-            </h2>
-
-            <p className="mt-5 text-base leading-8 text-slate-600 lg:text-lg">
-              AloeGreen follows a clear information flow that transforms raw
-              agricultural data into understandable and usable guidance.
-            </p>
-          </div>
-
-          <div className="relative mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            <div className="absolute left-[12.5%] right-[12.5%] top-12 hidden h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent lg:block" />
-
-            {workflow.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <article
-                  key={item.step}
-                  className="relative rounded-[1.75rem] border border-slate-100 bg-white p-7 text-center shadow-sm"
-                >
-                  <div className="relative z-10 mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border-4 border-white bg-emerald-700 text-white shadow-lg shadow-emerald-700/20">
-                    <Icon size={25} aria-hidden="true" />
-                  </div>
-
-                  <span className="mt-5 inline-block text-xs font-black tracking-[0.18em] text-emerald-600">
-                    STEP {item.step}
-                  </span>
-
-                  <h3 className="mt-2 text-xl font-extrabold text-slate-900">
-                    {item.title}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    {item.description}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Research perspective */}
-      <section className="px-6 pb-24 lg:px-8 lg:pb-28">
-        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] bg-emerald-50 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="relative min-h-[360px] overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 p-8 sm:p-10 lg:p-12">
-            <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border border-white/10" />
-            <div className="absolute -right-4 -top-4 h-40 w-40 rounded-full border border-white/10" />
-            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-lime-300/10 blur-2xl" />
-
-            <div className="relative flex h-full flex-col justify-between">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-emerald-200 ring-1 ring-white/10">
-                <Microscope size={28} aria-hidden="true" />
-              </div>
-
-              <div className="mt-16">
-                <p className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-300">
-                  Research Perspective
-                </p>
-
-                <h2 className="mt-4 max-w-md text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  A unified response to fragmented agricultural tools.
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-14">
-            <p className="text-base leading-8 text-slate-600 lg:text-lg">
-              AloeGreen investigates how a crop-specific platform can bring
-              sensing, forecasting, computer vision, recommendation systems,
-              and market intelligence into a usable agricultural
-              decision-support environment.
-            </p>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {[
-                "Crop-specific platform architecture",
-                "AI and IoT integration",
-                "Field-oriented decision support",
-                "Research and product relevance",
-              ].map((item) => (
                 <div
-                  key={item}
-                  className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm"
+                  className="flex animate-floaty items-center gap-3 rounded-2xl border border-white/10 bg-ink-950/70 px-4 py-3 shadow-2xl backdrop-blur-md"
+                  style={{ animationDelay: `${chip.delay}s` }}
                 >
-                  <CheckCircle2
-                    size={19}
-                    className="mt-0.5 shrink-0 text-emerald-600"
-                    aria-hidden="true"
-                  />
-                  <span className="text-sm font-semibold leading-6 text-slate-700">
-                    {item}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gel/15 text-gel">
+                    <Icon size={17} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
+                      {chip.label}
+                    </span>
+                    <span className="block font-display text-lg font-semibold tabular-nums">{chip.value}</span>
                   </span>
                 </div>
-              ))}
-            </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
 
-            <Link
-              to="/domain"
-              className="group mt-9 inline-flex w-fit items-center gap-2 font-bold text-emerald-700 transition hover:text-emerald-900"
-            >
-              Read the full domain analysis
-              <ArrowRight
-                size={18}
-                className="transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Navigation */}
-      <section className="border-y border-slate-100 bg-slate-50 px-6 py-24 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <SectionBadge icon={Navigation}>Explore AloeGreen</SectionBadge>
-
-              <h2 className="mt-5 text-3xl font-black tracking-[-0.03em] text-slate-950 sm:text-4xl">
-                Continue exploring the project.
-              </h2>
-
-              <p className="mt-4 text-base leading-8 text-slate-600">
-                Access the research background, project progress, documentation,
-                and presentation materials.
-              </p>
-            </div>
-
-            <Link
-              to="/about"
-              className="group inline-flex w-fit items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-900"
-            >
-              Meet the project team
-              <ArrowRight
-                size={17}
-                className="transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.title}
-                  to={item.href}
-                  className="group flex min-h-[245px] flex-col rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-700 group-hover:text-white">
-                      <Icon size={23} aria-hidden="true" />
-                    </div>
-
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition group-hover:border-emerald-200 group-hover:bg-emerald-50 group-hover:text-emerald-700">
-                      <ChevronRight
-                        size={18}
-                        className="transition-transform group-hover:translate-x-0.5"
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </div>
-
-                  <h3 className="mt-6 text-xl font-extrabold text-slate-900">
-                    {item.title}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    {item.description}
-                  </p>
-
-                  <span className="mt-auto pt-5 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">
-                    Explore section
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="px-6 py-24 lg:px-8">
-        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 px-7 py-14 text-center shadow-2xl shadow-emerald-900/20 sm:px-12 lg:py-20">
-          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full border border-white/10" />
-          <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-lime-300/10 blur-3xl" />
-
-          <div className="relative mx-auto max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-emerald-100">
-              <Sprout size={17} aria-hidden="true" />
-              AloeGreen Research Platform
-            </span>
-
-            <h2 className="mt-6 text-3xl font-black tracking-[-0.03em] text-white sm:text-4xl lg:text-5xl">
-              Discover the research behind smarter Aloe vera cultivation.
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-emerald-50/80 lg:text-lg">
-              Explore the project domain, research objectives, technical
-              approach, documentation, and development journey.
-            </p>
-
-            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                to="/domain"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-emerald-800 transition hover:-translate-y-0.5 hover:bg-emerald-50"
-              >
-                Explore Project Domain
-                <ArrowRight
-                  size={18}
-                  className="transition-transform group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </Link>
-
-              <Link
-                to="/about"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/15"
-              >
-                <Microscope size={18} aria-hidden="true" />
-                Meet the Research Team
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+      <motion.a
+        href="#numbers"
+        className="eyebrow absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-3 text-paper/50 transition-colors hover:text-gel sm:flex"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.4 }}
+      >
+        Scroll
+        <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
+          <ArrowDown size={14} aria-hidden="true" />
+        </motion.span>
+      </motion.a>
+    </section>
   );
 }
+
+function ModuleShowcase() {
+  const [activeKey, setActiveKey] = useState(modules[0].key);
+  const active = modules.find((module) => module.key === activeKey);
+  const Icon = active.icon;
+
+  return (
+    <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+      <Stagger className="border-t border-white/10">
+        {modules.map((module) => {
+          const selected = module.key === activeKey;
+          return (
+            <StaggerItem key={module.key} y={16}>
+              <button
+                type="button"
+                onMouseEnter={() => setActiveKey(module.key)}
+                onFocus={() => setActiveKey(module.key)}
+                onClick={() => setActiveKey(module.key)}
+                aria-pressed={selected}
+                className="group relative flex w-full items-center gap-5 border-b border-white/10 py-6 text-left"
+              >
+                <span className={`font-mono text-xs transition-colors duration-300 ${selected ? "text-gel" : "text-paper/35"}`}>
+                  {module.number}
+                </span>
+                <span
+                  className={`h-display flex-1 text-2xl transition-all duration-500 sm:text-4xl ${
+                    selected ? "translate-x-2 text-gel" : "text-paper/55 group-hover:text-paper"
+                  }`}
+                >
+                  {module.title}
+                </span>
+                <ArrowUpRight
+                  size={24}
+                  aria-hidden="true"
+                  className={`transition-all duration-500 ${selected ? "rotate-45 text-gel opacity-100" : "opacity-0"}`}
+                />
+              </button>
+            </StaggerItem>
+          );
+        })}
+      </Stagger>
+
+      <Reveal className="lg:sticky lg:top-28 lg:self-start">
+        <SpotlightCard className="min-h-[470px] overflow-hidden rounded-[2rem] border border-white/10 bg-ink-800 p-7 sm:p-10">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active.key}
+              initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="flex items-start justify-between gap-6">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gel text-ink-900">
+                  <Icon size={26} aria-hidden="true" />
+                </span>
+                <div className="text-right">
+                  <p className="h-display text-5xl text-gel">{active.stat.value}</p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
+                    {active.stat.label}
+                  </p>
+                </div>
+              </div>
+
+              <p className="accent mt-8 text-3xl text-paper">{active.tagline}</p>
+              <p className="mt-4 leading-7 text-paper/70">{active.body}</p>
+
+              <ul className="mt-6 space-y-2.5">
+                {active.points.map((point) => (
+                  <li key={point} className="flex gap-3 text-sm leading-6 text-paper/80">
+                    <Check size={16} aria-hidden="true" className="mt-1 shrink-0 text-gel" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
+                <div className="flex flex-wrap gap-2">
+                  {active.tags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-paper/50">Led by {active.owner}</p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </SpotlightCard>
+      </Reveal>
+    </div>
+  );
+}
+
+function Home() {
+  const strip = gallery.slice(0, 10);
+
+  return (
+    <>
+      <Hero />
+
+      {/* Technology ticker */}
+      <div className="border-y border-white/10 bg-ink-950 py-5 text-paper/60">
+        <Marquee duration={36}>
+          {techMarquee.map((item) => (
+            <span key={item} className="flex items-center gap-10 px-5 font-mono text-sm uppercase tracking-[0.2em]">
+              {item}
+              <span className="h-1.5 w-1.5 rounded-full bg-gel" />
+            </span>
+          ))}
+        </Marquee>
+      </div>
+
+      {/* Headline numbers */}
+      <Section tone="paper" id="numbers" className="!py-20">
+        <Stagger className="grid gap-px overflow-hidden rounded-[2rem] bg-ink-900/10 sm:grid-cols-2 lg:grid-cols-4">
+          {heroStats.map((stat) => (
+            <StaggerItem key={stat.label} className="bg-paper p-8">
+              <p className="h-display text-5xl text-leaf-dark xl:text-6xl">
+                <Counter value={stat.value} decimals={stat.decimals ?? 0} />
+              </p>
+              <p className="mt-4 font-semibold">{stat.label}</p>
+              <p className="mt-1 text-sm text-ink-900/55">{stat.note}</p>
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </Section>
+
+      {/* The problem */}
+      <Section tone="paper" className="!pt-8">
+        <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
+          <div>
+            <SectionHead
+              eyebrow="The problem"
+              title="A valuable export crop, still farmed *by feel.*"
+            />
+            <Reveal delay={0.2}>
+              <p className="mt-6 text-lg leading-8 text-ink-900/70">
+                In 2022 Sri Lanka exported 2,080 metric tons of Aloe vera and its
+                derivatives, earning about USD 15.06 million. Yet cultivation
+                still leans on manual observation and experience — and existing
+                research treats disease, yield and market analysis as separate
+                problems.
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.3} className="mt-10 grid grid-cols-2 gap-6 border-t border-ink-900/15 pt-8">
+              <div>
+                <p className="h-display text-5xl">
+                  <Counter value={2080} />
+                  <span className="ml-2 text-xl text-ink-900/50">MT</span>
+                </p>
+                <p className="mt-2 text-sm text-ink-900/60">exported in 2022</p>
+              </div>
+              <div>
+                <p className="h-display text-5xl">
+                  <Counter value={15.06} decimals={2} prefix="$" />
+                  <span className="ml-1 text-xl text-ink-900/50">M</span>
+                </p>
+                <p className="mt-2 text-sm text-ink-900/60">in export revenue</p>
+              </div>
+            </Reveal>
+            <Reveal delay={0.35}>
+              <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-900/40">
+                Source: Department of Export Agriculture, Annual Performance Report 2022
+              </p>
+            </Reveal>
+          </div>
+
+          <Stagger className="grid gap-4 sm:grid-cols-2">
+            {problems.map((problem, index) => (
+              <StaggerItem key={problem.title} className={index % 2 === 1 ? "sm:translate-y-10" : ""}>
+                <SpotlightCard
+                  spot="rgba(47,143,78,0.18)"
+                  className="h-full rounded-[1.75rem] border border-ink-900/10 bg-white/50 p-7 transition-transform duration-500 hover:-translate-y-1.5"
+                >
+                  <p className="font-mono text-xs text-leaf-dark">0{index + 1}</p>
+                  <h3 className="h-display mt-8 text-2xl">{problem.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-ink-900/65">{problem.body}</p>
+                </SpotlightCard>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+      </Section>
+
+      {/* Modules */}
+      <Section tone="ink">
+        <SectionHead
+          dark
+          eyebrow="The platform"
+          title="Five modules. *One* field of view."
+          lead="Each module answers a question a grower actually asks. Together they cover the cultivation lifecycle — from what the soil needs today to what the market pays next."
+        />
+        <ModuleShowcase />
+      </Section>
+
+      {/* Architecture */}
+      <Section tone="paper">
+        <SectionHead
+          eyebrow="How it works"
+          title="From a probe in the soil to a *phone* in the hand."
+          lead="A layered architecture carries each reading through sensing, communication and processing to the application. Hover a layer to follow the data."
+        />
+        <div className="mt-16">
+          <Architecture />
+        </div>
+      </Section>
+
+      {/* Sensor console */}
+      <Section tone="ink2">
+        <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
+          <SectionHead
+            dark
+            eyebrow="Live monitoring"
+            title="Ten signals, *one* node."
+            lead="An ESP32-based device measures the air, the light, the rain and the soil continuously — so models see the field as it is, not as it was last recorded by hand."
+          />
+          <Reveal delay={0.2}>
+            <p className="max-w-xs text-sm leading-6 text-paper/50">
+              The console below is an animated illustration with simulated
+              values. It shows the parameters the real node reports.
+            </p>
+          </Reveal>
+        </div>
+        <Reveal className="mt-14" delay={0.1}>
+          <SensorConsole />
+        </Reveal>
+      </Section>
+
+      {/* Contributions */}
+      <Section tone="paper">
+        <SectionHead
+          eyebrow="What is new"
+          title="Contributions that go beyond *prediction.*"
+        />
+        <Stagger className="mt-16 grid gap-px overflow-hidden rounded-[2rem] bg-ink-900/10 md:grid-cols-2 lg:grid-cols-6">
+          {contributions.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <StaggerItem
+                key={item.title}
+                className={`group bg-paper p-8 transition-colors duration-500 hover:bg-ink-900 hover:text-paper ${
+                  index < 2 ? "lg:col-span-3" : "lg:col-span-2"
+                }`}
+              >
+                <Icon size={28} aria-hidden="true" className="text-leaf-dark transition-colors duration-500 group-hover:text-gel" />
+                <h3 className="h-display mt-10 text-2xl">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-ink-900/65 transition-colors duration-500 group-hover:text-paper/70">
+                  {item.body}
+                </p>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
+        <Reveal className="mt-12">
+          <Button to="/domain" variant="dark">See methodology and results</Button>
+        </Reveal>
+      </Section>
+
+      {/* Field visit strip */}
+      <section className="grain relative overflow-hidden bg-ink-900 py-24 text-paper">
+        <div className="shell relative z-10 flex flex-wrap items-end justify-between gap-6">
+          <SectionHead
+            dark
+            eyebrow="In the field"
+            title="Built *with* growers, not just for them."
+          />
+          <Reveal>
+            <Button to="/gallery" variant="ghost">Open the gallery</Button>
+          </Reveal>
+        </div>
+        <div className="relative z-10 mt-14 space-y-4">
+          <Marquee duration={60}>
+            {strip.map((item) => (
+              <img
+                key={item.src}
+                src={item.src}
+                alt={item.caption}
+                loading="lazy"
+                className="mx-2 h-56 w-80 rounded-3xl object-cover grayscale transition-all duration-700 hover:grayscale-0 sm:h-72 sm:w-[26rem]"
+              />
+            ))}
+          </Marquee>
+        </div>
+      </section>
+
+      {/* Team teaser */}
+      <Section tone="paper2">
+        <div className="grid items-center gap-14 lg:grid-cols-2">
+          <div>
+            <SectionHead
+              eyebrow="The people"
+              title="Four researchers, *two* supervisors."
+              lead="AloeGreen is a final-year research project at the Sri Lanka Institute of Information Technology."
+            />
+            <Reveal delay={0.2} className="mt-10 flex flex-wrap gap-4">
+              <Button to="/about" variant="dark">Meet the team</Button>
+              <Button to="/contact" variant="outline">Get in touch</Button>
+            </Reveal>
+          </div>
+
+          <Parallax offset={30}>
+            <Stagger className="grid grid-cols-2 gap-4">
+              {members.map((member, index) => (
+                <StaggerItem key={member.id} className={index % 2 === 1 ? "translate-y-8" : ""}>
+                  <Link to="/about" className="group relative block aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-ink-900">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/10 to-transparent" />
+                    <span className="absolute inset-x-0 bottom-0 p-5 text-paper">
+                      <span className="block font-display text-lg font-semibold leading-tight">{member.name}</span>
+                      <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.14em] text-gel">
+                        {member.id}
+                      </span>
+                    </span>
+                  </Link>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          </Parallax>
+        </div>
+      </Section>
+    </>
+  );
+}
+
+export default Home;

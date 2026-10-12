@@ -1,3 +1,196 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ink-900 font-sans text-ink-900;
+  }
+
+  ::selection {
+    background: #c5f467;
+    color: #07160e;
+  }
+
+  :focus-visible {
+    outline: 2px solid #c5f467;
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.22em];
+  }
+
+  .h-display {
+    @apply font-display font-semibold leading-[0.95] tracking-[-0.035em];
+  }
+
+  .accent {
+    @apply font-serif font-normal italic tracking-[-0.01em];
+  }
+}
+
+/* Film grain laid over dark surfaces */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(to right, rgba(197, 244, 103, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(197, 244, 103, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+/* Cursor-following highlight used by SpotlightCard */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    380px circle at var(--mx, 50%) var(--my, 50%),
+    var(--spot, rgba(197, 244, 103, 0.16)),
+    transparent 65%
+  );
+}
+
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Aloe plant illustration */
+.leaf {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation:
+    leaf-grow 1.5s cubic-bezier(0.2, 0.9, 0.2, 1) both,
+    leaf-sway 7s ease-in-out infinite;
+  animation-delay: var(--d, 0s), calc(var(--d, 0s) + 1.5s);
+}
+
+@keyframes leaf-grow {
+  from {
+    transform: scale(0.05, 0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes leaf-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(var(--sway, 1.5deg));
+  }
+}
+
+.dash-flow {
+  stroke-dasharray: 4 10;
+  animation: dash-flow 1.2s linear infinite;
+}
+
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+.flow-x,
+.flow-y {
+  position: relative;
+  overflow: hidden;
+}
+
+.flow-x::after,
+.flow-y::after {
+  content: "";
+  position: absolute;
+  background: #7fbf2a;
+  border-radius: 999px;
+  box-shadow: 0 0 12px 2px rgba(127, 191, 42, 0.7);
+}
+
+.flow-x::after {
+  top: 50%;
+  left: 0;
+  width: 18px;
+  height: 4px;
+  margin-top: -2px;
+  animation: flow-x 1.8s linear infinite;
+  animation-delay: var(--d, 0s);
+}
+
+.flow-y::after {
+  left: 50%;
+  top: 0;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  animation: flow-y 1.8s linear infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes flow-x {
+  from {
+    left: -18px;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@keyframes flow-y {
+  from {
+    top: -18px;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
